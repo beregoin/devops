@@ -21,7 +21,7 @@ pipeline {
         }
 stage('Build docker') {
             steps {
-               docker build -t nberegoi/petclinic-training:{BUILD_TAG}
+               sh "docker build -t nberegoi/petclinic-training:$env:BUILD_NUMBER"
             }
         }
 node {
@@ -34,12 +34,7 @@ node {
 }
 stage('Build') {
             steps {
-               docker push nberegoi/petclinic-training:{BUILD_TAG}
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
+               sh "docker push nberegoi/petclinic-training:$env:BUILD_NUMBER"
             }
         }
     }
