@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    tools{
+      maven 'maven'
+    }
+  stage('Compile project') {
+            steps {
+               sh "mvn clean compile"
+            }
+        }
+    stages {
+        stage('Test execution') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage('Build project') {
+            steps {
+               sh "mvn clean install"
+            }
+        }
+stage('Build docker') {
+            steps {
+               docker build -t nberegoi/petclinic-training:{BUILD_TAG}
+            }
+        }
+node {
+  withCredentials([usernameColonPassword(credentialsId: 'mylogin', variable: 'USERPASS')]) {
+    sh '''
+      set +x
+      curl -u "$USERPASS" https://private.server/ > output
+    '''
+  }
+}
+stage('Build') {
+            steps {
+               docker push nberegoi/petclinic-training:{BUILD_TAG}
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
